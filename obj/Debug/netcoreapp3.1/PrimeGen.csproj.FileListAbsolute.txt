@@ -1,0 +1,11 @@
+C:\Users\Jorge\Documents\PrimeGen\obj\Debug\netcoreapp3.1\PrimeGen.csprojAssemblyReference.cache
+C:\Users\Jorge\Documents\PrimeGen\obj\Debug\netcoreapp3.1\PrimeGen.AssemblyInfoInputs.cache
+C:\Users\Jorge\Documents\PrimeGen\obj\Debug\netcoreapp3.1\PrimeGen.AssemblyInfo.cs
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.exe
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.deps.json
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.runtimeconfig.json
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.runtimeconfig.dev.json
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.dll
+C:\Users\Jorge\Documents\PrimeGen\bin\Debug\netcoreapp3.1\PrimeGen.pdb
+C:\Users\Jorge\Documents\PrimeGen\obj\Debug\netcoreapp3.1\PrimeGen.dll
+C:\Users\Jorge\Documents\PrimeGen\obj\Debug\netcoreapp3.1\PrimeGen.pdb
