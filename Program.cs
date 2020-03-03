@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PrimeGen
@@ -10,9 +12,11 @@ namespace PrimeGen
     {
         static void Main(string[] args)
         {
-
+            var s = new Stopwatch();
             var work = new Worker();
-            work.GeneratePrimes(1024);
+            s.Start();
+            work.GeneratePrimes(128);
+            Console.WriteLine(s.Elapsed);
         }
 
     }
@@ -21,49 +25,32 @@ namespace PrimeGen
     {
         
         private static RNGCryptoServiceProvider RNGCSP = new RNGCryptoServiceProvider();
-        private int count = 2;
+        private int count = 1;
         private int primesGenerated;
         private object _lock = new object();
         private List<Task> tasks = new List<Task>();
 
+
         public void GeneratePrimes(int bytes) {
-            while (true) {
-                /*if (primesGenerated == count)
-                {
-                    break;
-                }
-                GeneratePosiblePrime(bytes);
-                */
-                if (primesGenerated == count) {
-                        break;
-                }
-                var t = Task.Run(() => GeneratePosiblePrime(bytes));
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken ct = cts.Token;
+            while (primesGenerated < count) {
+                var t = Task.Run(() => GeneratePosiblePrime(bytes), ct);
                 tasks.Add(t);
             }
+            cts.Cancel();
         }
 
         private void GeneratePosiblePrime(int bytes) {
             var bi = generateRandomBigInt(bytes);
-/*
-            if (bi.IsProbablyPrime()) {
-                if (primesGenerated < count) {
-                    primesGenerated++;
-                    Console.WriteLine(primesGenerated.ToString() + ": " + bi);
-
-                    if (primesGenerated != count) {
-                        Console.WriteLine();
-                    }
-                }
-            }*/
-            if (bi.IsProbablyPrime()) {
-                lock(_lock) {
-                    if (primesGenerated < count) {
+            if (bi.IsProbablyPrime())
+            {
+                lock (_lock)
+                {
+                    if (primesGenerated < count)
+                    {
                         primesGenerated++;
-                        Console.WriteLine(primesGenerated.ToString() + ": " + bi);
-
-                        if (primesGenerated != count) {
-                            Console.WriteLine();
-                        }
+                        Console.WriteLine(primesGenerated + ": " + bi);
                     }
                 }
             }
