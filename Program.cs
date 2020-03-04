@@ -1,101 +1,88 @@
-﻿using System;
+﻿/*
+ * Jorge Flores
+ * CSCI.251.02
+ * Project 2 - PrimeGen
+ * Generates large prime numbers using the C# parallel libraries.
+*/
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace PrimeGen
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var s = new Stopwatch();
-            var work = new Worker();
-            s.Start();
-            work.GeneratePrimes(128);
-            Console.WriteLine(s.Elapsed);
-        }
-
-    }
-
-    public class Worker
-    {
-        
-        private static RNGCryptoServiceProvider RNGCSP = new RNGCryptoServiceProvider();
-        private int count = 1;
-        private int primesGenerated;
-        private object _lock = new object();
-        private List<Task> tasks = new List<Task>();
-
-
-        public void GeneratePrimes(int bytes) {
-            CancellationTokenSource cts = new CancellationTokenSource();
-            CancellationToken ct = cts.Token;
-            while (primesGenerated < count) {
-                var t = Task.Run(() => GeneratePosiblePrime(bytes), ct);
-                tasks.Add(t);
-            }
-            cts.Cancel();
-        }
-
-        private void GeneratePosiblePrime(int bytes) {
-            var bi = generateRandomBigInt(bytes);
-            if (bi.IsProbablyPrime())
+            var clock = new Stopwatch();
+            if (args.Length == 1)
             {
-                lock (_lock)
+                var bits = 0;
+                try
                 {
-                    if (primesGenerated < count)
-                    {
-                        primesGenerated++;
-                        Console.WriteLine(primesGenerated + ": " + bi);
-                    }
+                    bits = int.Parse(args[0]);
                 }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Bits must be an integer.");
+                    PrintConsoleHelp();
+                    Environment.Exit(0);
+                }
+
+                var work = new PrimeGenerator();
+
+                if (bits < 32 || bits % 8 != 0)
+                {
+                    Console.WriteLine("Invalid arguments.");
+                    PrintConsoleHelp();
+                    Environment.Exit(0);
+                }
+                
+                clock.Start();
+                work.GeneratePrimes(bits);
             }
+            
+            else if (args.Length == 2)
+            {
+                var bits = 0;
+                var count = 0;
+                try
+                {
+                    bits = int.Parse(args[0]);
+                    count = int.Parse(args[1]);
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Arguments must be integers.");
+                    PrintConsoleHelp();
+                    Environment.Exit(0);
+                }
+
+                var work = new PrimeGenerator(count);
+                if (bits < 32 || bits % 8 != 0 || count <= 0)
+                {
+                    Console.WriteLine("Invalid arguments.");
+                    PrintConsoleHelp();
+                    Environment.Exit(0);
+                }
+                work.GeneratePrimes(bits);
+            }
+
         }
         
-        
-        private BigInteger generateRandomBigInt(int bytes)
+        private static void PrintConsoleHelp()
         {
-            byte[] randomBits = new byte[bytes];
-            RNGCSP.GetBytes(randomBits);
-            return new BigInteger(randomBits, true);
+            Console.WriteLine("dotnet run PrimeGen <bits> <count=1>");
+            Console.WriteLine("    - bits - the number of bits of the prime number, this must be a multiple of 8, and at least 32 bits.");
+            Console.WriteLine("    - count - the number of prime numbers to generate, defaults to 1");
         }
+
     }
-    
-    
-    public static class Primer
-    {
-        public static Boolean IsProbablyPrime(this BigInteger value, int witnesses = 10) {
-            if (value <= 1) return false;
-            if (witnesses <= 0) witnesses = 10;
-            BigInteger d = value - 1;
-            int s = 0;
-            while (d % 2 == 0) {
-                d /= 2;
-                s += 1;
-            }
-            Byte[] bytes = new Byte[value.ToByteArray().LongLength];
-            BigInteger a;
-            for (int i = 0; i < witnesses; i++) {
-                do {
-                    var Gen = new Random();
-                    Gen.NextBytes(bytes);
-                    a = new BigInteger(bytes);
-                } while (a < 2 || a >= value - 2);
-                BigInteger x = BigInteger.ModPow(a, d, value);
-                if (x == 1 || x == value - 1) continue;
-                for (int r = 1; r < s; r++) {
-                    x = BigInteger.ModPow(x, 2, value);
-                    if (x == 1) return false;
-                    if (x == value - 1) break;
-                }
-                if (x != value - 1) return false;
-            }
-            return true;
-        }
-        
-    }
+
 }
